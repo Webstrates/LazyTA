@@ -1,0 +1,12 @@
+{
+    "description": "LazyTA Module for Cauldron",
+    "dependencies": [
+        "webstrate-components-repos #MaterialMenu",
+        "webstrate-components-repos #FragmentLogoIcons",
+        "webstrate-components-repos #MaterialDesignOutlinedIcons",
+        "#lazy_ta"
+    ],
+    "assets": [],
+    "license": "MIT",    
+    "version": "2"
+}

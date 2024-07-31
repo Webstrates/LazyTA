@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html data-protected="all">
+    <head>
+        <title>LazyTA package repository</title>
+        <meta charset="UTF-8">
+    </head> 
+    <body> 
+        <wpm-package id="lazy_ta_cauldron">
+            <script id="descriptor-script" type="descriptor">
+{
+    "description": "LazyTA Module for Cauldron",
+    "dependencies": [
+        "webstrate-components-repos #MaterialMenu",
+        "webstrate-components-repos #FragmentLogoIcons",
+        "webstrate-components-repos #MaterialDesignOutlinedIcons",
+        "#lazy_ta"
+    ],
+    "assets": [],
+    "license": "MIT",    
+    "version": "2"
+}
+
+</script>
+
+            <script id="lazy-ta-cauldron-script" type="disabled">
+/**
+ * Lazy TA - A Codestrate-based teaching assistant 
+ * 
+ * Copyright 2020-2023 Rolf Bagge, Janus Kristensen - CAVI, Aarhus University
+ * Copyright 2024 Janus Kristensen - CAVI, Aarhus University
+ * 
+ * MIT License:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of 
+ * this software and associated documentation files (the “Software”), to deal in 
+ * the Software without restriction, including without limitation the rights to use, 
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the 
+ * Software, and to permit persons to whom the Software is furnished to do so, 
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all 
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * SOFTWARE.
+ */
+
+let taMenu = MenuSystem.MenuManager.createMenu("LazyTaInsertMenu");
+
+function makeDescription(){
+    let description = document.createElement("code-fragment");
+    description.setAttribute("class", "ta-assignment");
+    description.setAttribute("name", "Description");
+    description.setAttribute("data-type", "text/markdown");
+    description.setAttribute("auto");
+    description.textContent = `## Task Header
+
+Description of task goes here`;
+    return description;
+}
+
+function makeTest(){
+    let test = document.createElement("code-fragment");
+    test.setAttribute("class", "ta-assignment-test");
+    test.setAttribute("name", "Test Code");
+    test.setAttribute("data-type", "text/javascript");
+    test.setAttribute("auto");
+    return test;
+}
+
+function makeCommentArea(){
+    let feedback = document.createElement("code-fragment");
+    feedback.setAttribute("name", "TA Feedback");
+    feedback.setAttribute("data-type", "text/markdown");
+    feedback.setAttribute("auto");    
+    feedback.setAttribute("class","ta-assignment-comment");
+    return feedback;
+}
+
+function onNewTask(context, element){
+    // Add to doc
+    WPMv2.stripProtection(element);
+    context.context.appendChild(element);    
+    
+    //Find new treenode and expand
+    setTimeout(()=> {
+        let treeNodes = context.getTreeBrowser().findTreeNodeForContext(element);
+        if (treeNodes.length > 0) {
+            let treeNode = treeNodes[0];
+            treeNode.reveal();
+            treeNode.select();
+        }
+    });    
+    
+    // Check for theme
+    if (document.querySelectorAll("task").length==1){
+        if (!document.body.classList.contains("ta-white-theme")){
+            if (confirm("Would you also like to add the default TA White Theme to body?")){
+                document.body.classList.add("ta-white-theme");
+            }
+        }
+    }
+    
+}
+
+MenuSystem.MenuManager.registerMenuItem("TreeBrowser.TreeNode.ContextMenu", {
+    label: "Insert LazyTA Assignment",
+    icon: IconRegistry.createIcon("mdc:track_changes"),
+    order: 100,
+    group: "inserters",
+    groupOrder: -1,
+    onOpen: (menu)=>{
+        return menu.context.type == "DomTreeNode" && !menu.context.context.matches("code-fragment");
+    },
+    submenu: taMenu
+});
+
+MenuSystem.MenuManager.registerMenuItem("LazyTaInsertMenu", {
+    label: "Javascript Assignment",
+    icon: IconRegistry.createIcon(["code-fragment:text/javascript", "mdc:insert_drive_file"]),
+    onAction: (menuItem)=>{
+        let taskElement = document.createElement("task");
+        taskElement.setAttribute("data-type","text/javascript");
+
+        let code = document.createElement("code-fragment");
+        code.setAttribute("class","ta-assignment-code");
+        code.setAttribute("name","Student Code");
+        code.setAttribute("data-type","text/javascript");        
+        code.textContent = '/* Write your JS code here */';
+
+        taskElement.appendChild(makeDescription());
+        taskElement.appendChild(code);
+        taskElement.appendChild(makeTest());
+        taskElement.appendChild(makeCommentArea());
+        
+        onNewTask(menuItem.menu.superMenu.context, taskElement);
+    }
+});
+
+MenuSystem.MenuManager.registerMenuItem("LazyTaInsertMenu", {
+    label: "CSS Assignment",
+    icon: IconRegistry.createIcon(["code-fragment:text/css", "mdc:insert_drive_file"]),
+    onAction: (menuItem)=>{
+        let taskElement = document.createElement("task");
+        taskElement.setAttribute("data-type","text/css");
+        
+        let view = document.createElement("code-fragment");
+        view.setAttribute("class","ta-assignment-view");
+        view.setAttribute("name","View");
+        view.setAttribute("data-type","text/html");
+        view.textContent = "HTML code goes here";
+                
+        let code = document.createElement("code-fragment");
+        code.setAttribute("class","ta-assignment-code");
+        code.setAttribute("name","Student Code");
+        code.setAttribute("data-type","text/css");        
+        code.textContent = '/* Write your CSS code here */';
+
+        taskElement.appendChild(makeDescription());
+        taskElement.appendChild(view);
+        taskElement.appendChild(code);
+        taskElement.appendChild(makeTest());
+        taskElement.appendChild(makeCommentArea());
+                
+        onNewTask(menuItem.menu.superMenu.context, taskElement);
+    }
+});
+
+MenuSystem.MenuManager.registerMenuItem("LazyTaInsertMenu", {
+    label: "JS DOM Assignment",
+    icon: IconRegistry.createIcon(["code-fragment:text/html", "mdc:insert_drive_file"]),
+    onAction: (menuItem)=>{
+        let taskElement = document.createElement("task");
+        taskElement.setAttribute("data-type","text/javascript");
+        
+        let view = document.createElement("code-fragment");
+        view.setAttribute("class","ta-assignment-dom");
+        view.setAttribute("name","HTML Code");
+        view.setAttribute("data-type","text/html");
+        view.textContent = "HTML code goes here";
+
+        let css = document.createElement("code-fragment");
+        css.setAttribute("class","ta-assignment-css");
+        css.setAttribute("name","CSS Code");
+        css.setAttribute("data-type","text/css");
+        css.textContent = "/* CSS here */";        
+        
+        let code = document.createElement("code-fragment");
+        code.setAttribute("class","ta-assignment-code");
+        code.setAttribute("name","Student Code");
+        code.setAttribute("data-type","text/javascript");        
+        code.textContent = '/* Write your JS code here */';
+
+        taskElement.appendChild(makeDescription());
+        taskElement.appendChild(view);
+        taskElement.appendChild(css);
+        taskElement.appendChild(code);
+        taskElement.appendChild(makeTest());
+        taskElement.appendChild(makeCommentArea());
+                
+        onNewTask(menuItem.menu.superMenu.context, taskElement);
+    }
+});
+
+</script>
+
+        </wpm-package>
+        <wpm-package id="lazy_ta">
+            <style id="base-style">
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap");
+@keyframes ta-feedback-appears {
+  0% {
+    transform-origin: top center;
+    transform: scaleY(0); }
+  100% {
+    transform-origin: top center;
+    transform: scaleY(1); } }
+
+@keyframes codePreviewAppears {
+  from {
+    transform: translateY(-10%);
+    opacity: 0; }
+  to {
+    transform: translateY(0); } }
+
+.ta-assignment-exampleview {
+  overflow: auto; }
+
+.autoDom.ta-assignment-comment {
+  display: block;
+  margin-top: 1em;
+  background: rgba(0, 0, 255, 0.1);
+  padding: 1em;
+  border: 1px solid #cbcbff; }
+  .autoDom.ta-assignment-comment:before {
+    content: "TA comments";
+    font-weight: bold; }
+  .autoDom.ta-assignment-comment:empty {
+    display: none; }
+
+body.ta-white-theme {
+  font-family: 'Georgia', serif;
+  background: white;
+  max-width: 45em;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.75;
+  font-smooth: always;
+  position: relative; }
+  body.ta-white-theme h1, body.ta-white-theme h2, body.ta-white-theme h3 {
+    font-family: 'Cinzel', sans-serif;
+    margin-top: 2em; }
+  body.ta-white-theme code {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 0.14em; }
+  body.ta-white-theme task .codestrates-editor-core {
+    border: 1px solid grey;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.4); }
+  body.ta-white-theme .feedback {
+    position: relative;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1em;
+    background: rgba(255, 159, 0, 0.09);
+    display: flex;
+    flex-direction: column;
+    animation: ta-feedback-appears 0.15s ease-out; }
+    body.ta-white-theme .feedback:empty {
+      display: none; }
+    body.ta-white-theme .feedback:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      border-top: 1.5em solid #c8b081;
+      border-left: 1.5em solid transparent;
+      border-right: 1.5em solid transparent;
+      width: 0;
+      height: 6em;
+      left: 50%;
+      transform: translateX(-50%); }
+    body.ta-white-theme .feedback .success, body.ta-white-theme .feedback .fail, body.ta-white-theme .feedback .error {
+      padding: 0.5em;
+      margin: 0.5em;
+      position: relative;
+      margin-left: 2.5em; }
+      body.ta-white-theme .feedback .success:before, body.ta-white-theme .feedback .fail:before, body.ta-white-theme .feedback .error:before {
+        font-size: 2em;
+        left: -2rem;
+        top: 50%;
+        position: absolute;
+        transform: translateY(-50%);
+        width: 1em;
+        text-align: center; }
+    body.ta-white-theme .feedback .success:before {
+      content: "✔";
+      color: green; }
+    body.ta-white-theme .feedback .fail:before {
+      content: "✗";
+      color: red; }
+    body.ta-white-theme .feedback .error {
+      background: rgba(255, 0, 0, 0.1);
+      order: -1; }
+    body.ta-white-theme .feedback .error:before {
+      content: "!";
+      color: red; }
+  body.ta-white-theme .commentTitle {
+    display: none; }
+  body.ta-white-theme .code-preview-button {
+    position: absolute;
+    cursor: pointer;
+    padding: 0.25em;
+    z-index: 100;
+    right: 0; }
+  body.ta-white-theme .task-run-button {
+    display: block;
+    text-align: right;
+    padding: 0.5em;
+    cursor: pointer; }
+  body.ta-white-theme .previewEditor {
+    border: none !important;
+    padding: 0.5em;
+    margin: 1em;
+    margin-right: 0;
+    box-shadow: none;
+    border-bottom: 0.2rem solid #e3e3e3 !important;
+    opacity: 0.7;
+    position: relative;
+    margin-bottom: 1.5em;
+    animation: codePreviewAppears 0.25s ease-out; }
+    body.ta-white-theme .previewEditor:before {
+      content: "";
+      position: absolute;
+      top: 100%;
+      border-top: 1.5em solid #e3e3e3;
+      border-left: 1.5em solid transparent;
+      border-right: 1.5em solid transparent;
+      width: 0;
+      height: 6em;
+      left: 12%;
+      transform: translateX(-50%); }
+</style>
+
+            <script id="descriptor-script" type="descriptor">
+{
+    "description": "Easily create small exercises with javascript test-based feedback",
+    "dependencies": [
+        "wpm_js_libs #esprima",
+        "codestrates-repos #fragment_js",
+        "codestrates-repos #fragment_html",
+        "codestrates-repos #fragment_css",
+        "codestrates-repos #fragment_markdown",
+        "codestrates-repos #editor_monaco",
+        "wpm_js_libs #fontawesome"
+    ],
+    "assets": [],
+    "license": "MIT",
+    "version": "2"
+}
+
+</script>
+
+            <script id="Task-script" type="disabled">
+/**
+ * Lazy TA - A Codestrate-based teaching assistant 
+ * 
+ * Copyright 2020-2023 Rolf Bagge, Janus Kristensen - CAVI, Aarhus University
+ * Copyright 2024 Janus Kristensen - CAVI, Aarhus University
+ * 
+ * MIT License:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of 
+ * this software and associated documentation files (the “Software”), to deal in 
+ * the Software without restriction, including without limitation the rights to use, 
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the 
+ * Software, and to permit persons to whom the Software is furnished to do so, 
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all 
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * SOFTWARE.
+ */
+
+/* global Fragment, EditorManager, CodemirrorEditor, WPMv2 */
+window.Task = class Task {
+    constructor(html) {
+        let self = this;
+
+        this.html = html;
+
+        this.html.lazyTATask = this;
+
+        this.codeEditor = null;
+        this.commentEditor = null;
+
+        this.assignment = Fragment.one(this.html.querySelector(".ta-assignment"));
+        this.code = Fragment.one(this.html.querySelector(".ta-assignment-code"));
+        this.testCode = Fragment.one(this.html.querySelector(".ta-assignment-test"));
+        this.exampleView = Fragment.one(this.html.querySelector(".ta-assignment-view"));
+        this.comments = Fragment.one(this.html.querySelector(".ta-assignment-comment"));
+        this.dom = Fragment.one(this.html.querySelector(".ta-assignment-dom"));
+        this.css = Fragment.one(this.html.querySelector(".ta-assignment-css"));
+        
+        if (!this.html.querySelector(".feedback")){
+            let feedback = document.createElement("transient");
+            feedback.setAttribute("class","feedback");
+            this.code.element.parentNode.insertBefore(feedback, this.code.element.nextSibling);
+        }
+
+        // Send code changes to the evaluator
+        this.code.registerOnFragmentChangedHandler(function () {
+            clearTimeout(self.feedbackTimer);
+            self.feedbackTimer = setTimeout(function () {
+                if(self.shouldAutoEvaluate()) {
+                    self.evaluate();
+                }
+            }, 1000);
+        });
+
+        if(this.dom != null) {
+            let previewButton = document.createElement("i");
+            previewButton.classList.add("code-preview-button");
+            previewButton.classList.add("fas");
+            previewButton.classList.add("fa-eye");
+            previewButton.title = "Toggle code preview";
+
+            this.dom.element.parentNode.insertBefore(previewButton, this.dom.element);
+
+            previewButton.addEventListener("click", ()=>{
+                self.toggleDomPreview();
+
+                previewButton.classList.remove("fa-eye");
+                previewButton.classList.remove("fa-eye-slash");
+
+                if (this.html.querySelector(".previewEditor")){
+                    previewButton.classList.add("fa-eye-slash");
+                } else {
+                    previewButton.classList.add("fa-eye");
+                }
+            });
+        }
+
+        if(this.exampleView != null) {
+            let previewButton = document.createElement("i");
+            previewButton.classList.add("code-preview-button");
+            previewButton.classList.add("fas");
+            previewButton.classList.add("fa-eye");
+            previewButton.title = "Toggle code preview";
+
+            this.exampleView.element.parentNode.insertBefore(previewButton, this.exampleView.element);
+
+            previewButton.addEventListener("click", ()=>{
+                self.toggleExampleViewPreview();
+
+                previewButton.classList.remove("fa-eye");
+                previewButton.classList.remove("fa-eye-slash");
+
+                if (this.html.querySelector(".previewEditor")){
+                    previewButton.classList.add("fa-eye-slash");
+                } else {
+                    previewButton.classList.add("fa-eye");
+                }
+            });
+        }
+
+        let runButton = document.createElement("i");
+        runButton.setAttribute("class","task-run-button fas fa-play-circle");
+        runButton.addEventListener("click", ()=>{
+            self.evaluate();
+        })
+
+        let autoObserver = new MutationObserver((mutations)=>{
+            if(self.html.classList.contains("noauto")) {
+                this.code.element.parentNode.insertBefore(runButton, this.code.element);
+            } else {
+                runButton.remove();
+            }
+        });
+
+        autoObserver.observe(this.html, {
+            attributes: true,
+            attributeFilter: ["class"]
+        });
+
+        if(self.html.classList.contains("noauto")) {
+            this.code.element.parentNode.insertBefore(runButton, this.code.element);
+        }
+
+        this.toggleCodeEditor();
+        this.showExampleView();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const taEnabled = urlParams.get('ta') != null;
+
+        if(taEnabled) {
+            this.toggleCommentEditor();
+            if(this.shouldAutoEvaluate()) {
+                this.evaluate();
+            }
+        }
+    }
+
+    shouldAutoEvaluate() {
+        return !this.html.classList.contains("noauto");
+    }
+
+    toggleCommentEditor() {
+        if(this.commentEditor == null) {
+            this.commentEditor = EditorManager.createEditor(this.comments, {theme: "light", mode:"inline", editor: MonacoEditor})[0];
+        }
+
+        if (this.commentEditor.html.parents().is("body")) {
+            //Already in dom, remove
+            this.commentEditor.html.remove();
+        } else {
+            //Not in dom, insert.
+            let anchor = this.html.querySelector(".ta-assignment-comment");
+            anchor.parentNode.insertBefore(this.commentEditor.html[0], anchor.nextSibling);
+        }
+    }
+
+    toggleCodeEditor() {
+        if(this.codeEditor == null) {
+            this.codeEditor = EditorManager.createEditor(this.code, {theme: "light", mode:"full", editor: MonacoEditor})[0];
+        }
+        
+        if (this.codeEditor.html.parents().is("body")) {
+            //Already in dom, remove
+            this.codeEditor.html.remove();
+        } else {
+            //Not in dom, insert.
+            let anchor = this.html.querySelector(".ta-assignment-code");
+            anchor.parentNode.insertBefore(this.codeEditor.html[0], anchor.nextSibling);
+        }
+    }
+
+    toggleExampleViewPreview() {
+        if(this.exampleViewPreview == null) {
+            this.exampleViewPreview = EditorManager.createEditor(this.exampleView, {
+                theme: "light",
+                mode: "full",
+                readOnly: true,
+                editor: MonacoEditor
+            })[0];
+
+            this.exampleViewPreview.html.addClass("previewEditor");
+        }
+
+        if(!this.exampleViewPreview.html.parents().is("body")) {
+            this.exampleView.html[0].parentNode.insertBefore(this.exampleViewPreview.html[0], this.exampleView.html[0]);
+        } else {
+            this.exampleViewPreview.html.remove();
+        }
+    }
+
+    toggleDomPreview() {
+        if(this.domPreview == null) {
+            this.domPreview = EditorManager.createEditor(this.dom, {
+                theme: "light",
+                mode: "full",
+                readOnly: true,
+                editor: MonacoEditor
+            })[0];
+
+            this.domPreview.html.addClass("previewEditor");
+        }
+
+        if(!this.domPreview.html.parents().is("body")) {
+            this.dom.element.parentNode.insertBefore(this.domPreview.html[0], this.dom.element);
+        } else {
+            this.domPreview.html.remove();
+        }
+    }
+
+    showExampleView() {
+        let self = this;
+        if (this.exampleView !== null) {
+            this.exampleViewFrame = document.createElement("div");
+            this.exampleViewFrame.setAttribute("class", "ta-assignment-exampleview");
+            this.exampleViewFrame.setAttribute("transient-element", "true");
+            this.exampleView.element.parentNode.insertBefore(this.exampleViewFrame, this.exampleView.element.nextSibling);
+            let shadow = this.exampleViewFrame.attachShadow({mode:"open"});
+
+            async function update() {
+                let code = await self.code.require();
+                shadow.innerHTML = self.exampleView.raw;
+                shadow.append(code);
+            }
+
+            this.exampleView.registerOnFragmentChangedHandler(() => {
+                update();
+            });
+            this.code.registerOnFragmentChangedHandler(() => {
+                update();
+            });
+
+            //Some browsers load a page after insertion of iframe, so make sure we catch this event too.
+            this.exampleViewFrame.onload = () => {
+                update();
+            };
+
+            update();
+        }
+    }
+
+    getTestContext() {
+        let feedback = this.html.querySelector(".feedback");
+
+        let context = {
+            success: (msg)=>{
+                let el = document.createElement("div");
+                el.setAttribute("class", "success");
+                el.innerHTML = msg;
+                feedback.appendChild(el);
+            },
+            fail: (msg)=>{
+                let el = document.createElement("div");
+                el.setAttribute("class", "fail");
+                el.innerHTML = msg;
+                feedback.appendChild(el);
+            },
+            error: (msg)=>{
+                let el = document.createElement("div");
+                el.setAttribute("class", "error");
+                el.innerHTML = msg;
+                feedback.appendChild(el);
+            },
+            console: {
+                log: (...args)=>{
+                    console.log("[EVAL]", ...args);
+                }
+            }
+        };
+
+        // Use view if applicable
+        if (this.exampleViewFrame != null) {
+            context.document = this.exampleViewFrame.shadowRoot;
+        }
+        
+        return context;
+    }
+};
+
+</script>
+
+            <script id="JavascriptTask-script" type="disabled">
+/**
+ * Lazy TA - A Codestrate-based teaching assistant 
+ * 
+ * Copyright 2020-2023 Rolf Bagge, Janus Kristensen - CAVI, Aarhus University
+ * Copyright 2024 Janus Kristensen - CAVI, Aarhus University
+ * 
+ * MIT License:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of 
+ * this software and associated documentation files (the “Software”), to deal in 
+ * the Software without restriction, including without limitation the rights to use, 
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the 
+ * Software, and to permit persons to whom the Software is furnished to do so, 
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all 
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * SOFTWARE.
+ */
+
+/* global JavascriptFragment, JsEvalEngine */
+window.JavascriptTask = class JavascriptTask extends Task {
+    constructor(html) {
+        super(html);
+    }
+    
+    async evaluate() {
+        let assignmentCode = this.code.raw;
+        let assignmentTestCode = this.testCode.raw;
+        let completeAssignment = assignmentCode +"\n\n"+assignmentTestCode;
+        let context = this.getTestContext();
+        
+        let feedback = this.html.querySelector(".feedback");
+
+        try {
+            if(this.dom != null) {
+                this.dom.clearAutoDom();
+                await this.dom.insertAutoDom();
+            }
+
+
+            //Attempt parsing
+            feedback.innerHTML="";
+            esprima.parse(assignmentCode);
+
+            JsEvalEngine.execute(completeAssignment, {async: false, context: context}).catch((e)=>{
+                feedback.innerHTML="";
+
+                let parsedStack = JsEvalEngine.parseErrorStack(e.name, e.stack);
+
+                if(e instanceof SyntaxError) {
+                    context.error(parsedStack.extraReason);
+                } else {
+                    context.error("Line: "+parsedStack.stack[0].lineNumber+" - "+parsedStack.extraReason);
+                }
+            });
+        } catch(e) {
+            console.log(e);
+            context.error(e.message);
+        }
+    }
+};
+
+</script>
+
+            <script id="CssTask-script" type="disabled">
+/**
+ * Lazy TA - A Codestrate-based teaching assistant 
+ * 
+ * Copyright 2020-2023 Rolf Bagge, Janus Kristensen - CAVI, Aarhus University
+ * Copyright 2024 Janus Kristensen - CAVI, Aarhus University
+ * 
+ * MIT License:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of 
+ * this software and associated documentation files (the “Software”), to deal in 
+ * the Software without restriction, including without limitation the rights to use, 
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the 
+ * Software, and to permit persons to whom the Software is furnished to do so, 
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all 
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * SOFTWARE.
+ */
+window.CssTask = class CssTask extends Task {
+    constructor(html) {
+        super(html);
+    }    
+    
+    evaluate() {
+        let context = this.getTestContext();
+        
+        let feedback = this.html.querySelector(".feedback");
+        feedback.innerHTML="";
+        
+        try {
+            this.testCode.require({ context: context });
+        } catch(e) {
+            context.error(e.message);
+        }                
+    }
+};
+
+</script>
+
+            <script id="lazy_ta-script" type="disabled">
+/**
+ * Lazy TA - A Codestrate-based teaching assistant 
+ * 
+ * Copyright 2020-2023 Rolf Bagge, Janus Kristensen - CAVI, Aarhus University
+ * Copyright 2024 Janus Kristensen - CAVI, Aarhus University
+ * 
+ * MIT License:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of 
+ * this software and associated documentation files (the “Software”), to deal in 
+ * the Software without restriction, including without limitation the rights to use, 
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the 
+ * Software, and to permit persons to whom the Software is furnished to do so, 
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all 
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * SOFTWARE.
+ */
+
+function createTask(dom) {
+    switch (dom.getAttribute("data-type")) {
+        case "text/css":
+            new CssTask(dom);
+            break;
+        case "text/javascript":
+            new JavascriptTask(dom);
+            break;
+    }
+}
+
+document.querySelectorAll("task").forEach(task=>{
+    createTask(task);
+});
+let observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        Array.from(mutation.addedNodes).forEach((addedNode) => {
+
+            if (addedNode.matches && addedNode.matches("task") && !addedNode.lazyTATask) {
+                createTask(addedNode);
+            }
+        });
+    });
+});
+observer.observe(document, {
+    childList: true,
+    subtree: true
+});
+
+</script>
+
+        </wpm-package>
+    </body>
+</html>
+

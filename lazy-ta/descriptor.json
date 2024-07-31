@@ -1,0 +1,15 @@
+{
+    "description": "Easily create small exercises with javascript test-based feedback",
+    "dependencies": [
+        "wpm_js_libs #esprima",
+        "codestrates-repos #fragment_js",
+        "codestrates-repos #fragment_html",
+        "codestrates-repos #fragment_css",
+        "codestrates-repos #fragment_markdown",
+        "codestrates-repos #editor_monaco",
+        "wpm_js_libs #fontawesome"
+    ],
+    "assets": [],
+    "license": "MIT",
+    "version": "2"
+}

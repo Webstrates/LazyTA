@@ -1,0 +1,166 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
+
+@keyframes ta-feedback-appears {
+    0% {transform-origin: top center; transform: scaleY(0)}
+    100% {transform-origin: top center; transform: scaleY(1)}
+}
+@keyframes codePreviewAppears {
+    from {
+        transform: translateY(-10%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.ta-assignment-exampleview {
+    overflow: auto;
+}
+.autoDom.ta-assignment-comment {
+    display: block;
+    margin-top: 1em;
+    background: rgba(0,0,255,0.1);    
+    padding: 1em;
+    border: 1px solid #cbcbff;
+    
+    &:before {
+        content: "TA comments";
+        font-weight: bold;
+    }
+    &:empty {
+        display:none;
+    }
+}
+
+body.ta-white-theme {
+    font-family: 'Georgia', serif;
+    background: white;
+    max-width: 45em;
+    margin-left: auto;
+    margin-right: auto;    
+    line-height: 1.75; 
+    font-smooth: always;   
+    position: relative;
+    
+    h1, h2, h3 {
+        font-family: 'Cinzel', sans-serif;
+        margin-top: 2em;
+    }
+    
+    code {
+        background: rgba(0,0,0,0.1);
+        padding: 0.14em;
+    }
+    
+    task .codestrates-editor-core { 
+        border: 1px solid grey;
+        box-shadow: 0 0 2px rgba(0,0,0,0.4);    
+    }
+    
+    .feedback {
+        position: relative;
+        width: 50%;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 1em;
+        background: rgba(255, 159, 0, 0.09);
+        display: flex;
+        flex-direction: column;
+        animation: ta-feedback-appears 0.15s ease-out;        
+        
+        &:empty {
+            display: none;            
+        }
+        &:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            border-top: 1.5em solid #c8b081;
+            border-left: 1.5em solid transparent;
+            border-right: 1.5em solid transparent;
+            width: 0;
+            height: 6em;
+            left: 50%;
+            transform: translateX(-50%);
+        }        
+        .success,.fail,.error {
+            padding: 0.5em;
+            margin: 0.5em;
+            position: relative;
+            margin-left: 2.5em;
+            
+            &:before {
+                font-size: 2em;
+                left: -2rem;
+                top: 50%;
+                position: absolute;
+                transform: translateY(-50%);
+                width: 1em;
+                text-align: center;    
+            }
+        }
+        .success:before {
+            content: "✔";
+            color: green;
+        }
+        .fail:before {
+            content: "✗";
+            color: red;            
+        }
+        .error {
+            background: rgba(255,0,0,0.1);
+            order: -1;
+        }
+        .error:before {
+            content: "!";
+            color: red;            
+        }
+    }
+    
+    .commentTitle {
+        display:none;
+    }
+
+    .code-preview-button {
+        position: absolute;
+        cursor: pointer;
+        padding: 0.25em;
+        z-index: 100;
+        right: 0;
+    }
+    
+    .task-run-button {
+        display: block;
+        text-align: right;
+        padding: 0.5em;
+        cursor: pointer;    
+    }
+
+    .previewEditor {
+        border: none !important;
+        padding: 0.5em;
+        margin: 1em;
+        margin-right: 0;
+        box-shadow: none;
+        border-bottom: 0.2rem solid rgb(227, 227, 227) !important;    
+        opacity: 0.7;
+        position: relative;
+        margin-bottom: 1.5em;
+        animation: codePreviewAppears 0.25s ease-out;
+        
+        &:before {
+            content: "";
+            position: absolute;
+            top: 100%;
+            border-top: 1.5em solid rgb(227, 227, 227);
+            border-left: 1.5em solid transparent;
+            border-right: 1.5em solid transparent;
+            width: 0;
+            height: 6em;
+            left: 12%;
+            transform: translateX(-50%);        
+        }
+    }
+}
+
